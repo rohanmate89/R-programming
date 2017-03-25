@@ -1,0 +1,84 @@
+---
+title: "Plotting decision model and testing purned model"
+author: "Rohan Mate"
+date: "December 19, 2016"
+output: html_document
+---
+```{r}
+require(caret)
+require(class)
+require(e1071)
+require(tree)
+classify = read.csv("classifyrisk.csv", header = T)
+historical = read.csv("ClassifyRisk_historical.csv", header = T)
+``` 
+
+
+#Normalizing
+```{r}
+norm.income=(historical$income-min(historical$income))/(max(historical$income)-min(historical$income))
+head(norm.income)
+norm.historical=sapply(historical[2:3],function(x){(x-min(x))/(max(x) - min(x))})
+head(norm.historical)
+norm.historical=data.frame(norm.historical,norm.income,historical$risk)
+head(norm.historical)
+```
+
+
+#Sampling 
+```{r}
+set.seed(123)
+ind = sample(2, nrow(norm.historical), replace = T, prob = (c(0.67, 0.33)))
+norm.historical.train = norm.historical[ind==1,]
+norm.historical.test = norm.historical[ind==2,]
+```
+
+#Building DT model
+```{r}
+model = tree(norm.historical$historical.risk~norm.historical$norm.income+norm.historical$loans+norm.historical$age)
+model
+```
+
+#Plot DT model
+```{r}
+plot(model)
+text(model, pretty = 0)
+```
+
+
+```{r}
+test = predict(model, norm.historical.test, type = 'class')
+test
+
+act = norm.historical$historical.risk
+
+table(data.frame(test, act))
+
+confusionMatrix(table(data.frame(test, act)))
+```
+
+#purning
+```{r}
+cross.val <- cv.tree(model, FUN = prune.misclass)
+names(cross.val)
+
+#dev = error, size = # of leaves in Decision Tree
+plot(cross.val$size, cross.val$dev, type = "b")
+
+#best = 3 (...from above plot) came from the plot above
+pruned.model = prune.misclass(model, best = 3)
+pruned.model
+plot(pruned.model)
+text(pruned.model, pretty = 0)
+```
+
+## Testing pruned model
+```{r}
+pruned.test <- predict(pruned.model, norm.historical.test, type = 'class')
+pruned.test
+
+table(data.frame(pruned.test, act))
+confusionMatrix(table(data.frame(pruned.test, act)))
+```
+
+

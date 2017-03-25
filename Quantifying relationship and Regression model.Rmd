@@ -1,0 +1,94 @@
+---
+title: "Quantifying relationship and Regression model"
+author: "Rohan Mate"
+date: "November 16, 2016"
+output: html_document
+---
+
+```{r}
+baseball = read.csv("baseball.csv", header = TRUE)
+```
+
+#1. Plot a diagram to show the relationship between 'runs' and 'at_bats'. Consider 'at_bats' as the explanatory variable.
+
+```{r}
+plot(baseball$runs ~ baseball$at_bats, main = "relationship between 'runs' and 'at_bats'", xlab = "At Bats", ylab = "Runs")
+```
+
+#2. Can you quantify this relationship ?
+
+```{r}
+#The relationship looks moderately linear but, not strong enough to be able to comfortably use a linear model to predict the number of runs. Since the relationship is linear we can quanitfy the strength of the relationship with the correlation coefficient
+
+cor(baseball$runs, baseball$at_bats)
+```
+
+#3.A more efficient way to find the min Sum of Squares is to use the lm function in R to fit the linear model (a.k.a. regression line).
+
+```{r}
+m1 <- lm ( runs ~ at_bats , data = baseball)
+m1
+summary(m1)
+#abline(m1)
+# The linear function that describes the relationship is: 
+# y = -2789.2429 + 0.6305*x OR number of runs = -2789.2429 + 0.6305*number of at bats
+```
+
+#4. Fit another model that uses homeruns to predict runs. Using the estimates from the R output, write the equation of the regression line. What does the slope tell us in the context of the relationship   between success of a team and its home runs?
+
+```{r}
+m11 <- lm(baseball$runs ~ baseball$homeruns, data = baseball)
+m11$coefficients
+# predective model:
+# y = 415.23 + 1.83 * x 
+#or
+# of runs = 415.23 + 1.83 * # of homeruns
+
+baseball.runs = function(x){
+  y = 415.23 + 1.83 * x
+  return(y)
+  }
+
+#For Scatterplot
+plot(baseball$runs ~ baseball$at_bats, main = "Relationship between Runs and Home runs", xlab = "Home Runs", ylab = "Runs")
+abline(m1)
+
+#abline predict y at any value x. In this event that the expectation is accomplished for an estimation of x that is outside of the scope of the dataset then this process is called Extrapolation. extrapolation is the process of estimating, beyond the original observation range, the value of a variable on the basis of its relationship with another variable.
+```
+
+#5. If a team manager saw the least squares regression line and not the actual data, how many runs would he or she predict for a team with 5,578 at_bats? Is this an overestimate or an underestimate, and by how much? In other words, what is the residual for this prediction?
+
+```{r}
+#Least Square Regression line for runs vs at_bats
+#y^ = -2789.2429 + 0.6305 * atbats
+
+#If atbats is 5,578
+
+#Predicted Runs is y^ = -2789.2429 + 0.6305 * 5578 y^ = 727.6861
+
+#The estimated number of runs for 5578 at bats based on the linear regression formula above is 728. A team with 5578 at bats cannot be found in the data but we can see the team Philadelphia Phillies has 5579 at bats with 713 runs. Therefore we can conclude that the model may have overestimated the runs for a team with 5578 at bats by 728 - 713 = 15 runs.
+```
+
+#6. Choose another traditional variable from baseball daga that you think might be a good predictor of runs. Produce a scatterplot of the two variables and fit a linear model. At a glance, does there seem to be a linear relationship?
+
+```{r}
+m2=plot(baseball$runs ~ baseball$bat_avg, main = "Relationship between Runs and Batting Avg", xlab = "Batting Avg", ylab = "Runs")
+m2 <- lm(baseball$runs ~ baseball$hits, data = baseball)
+m2$coefficients
+
+# linear model: y = -375.55 + 0.75 * x
+
+# Yes, analyzing scatter plot we can see a relationship between number of runs which are directly proportionally to number of hits.
+```
+
+#7. How does this relationship compare to the relationship between runs and at_bats? Use the R2 values from the two model summaries to compare. Does your variable seem to predict runs better than at_bats? How can you tell
+
+```{r}
+#R2 is the percentage of the variance in the dependent variable that can be explained by a linear model. R2 is always in the range between 0% - 100% and the higher the value the better the linear model explains the dependant variable and lower the value weaker the predictability of the dependant variable.
+
+#Let m1 be the model for the relationship between runs and at bats which produces R2 of 37.29% Let m2 be the model for the relationship between runs and bat avg which produces R2 of 65.61%
+
+#Looking at the R2s of both models we can clearly see that the the R2 value of the model m2 is far greater and that the variable bat_avg predicts runs better than at bats.So, higher the percent variablity better the model fits the data. Hence, hits predicts runs better than at_bats. 
+
+```
+

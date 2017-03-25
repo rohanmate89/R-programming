@@ -1,0 +1,60 @@
+---
+title: "Analyzing and plotting Knn model for Iris data"
+author: "Rohan Mate"
+date: "November 16, 2016"
+output: html_document
+---
+
+```{r}
+require(caret)
+require(class)
+require(e1071)
+```
+
+#normalizing 
+```{r}
+norm.iris=sapply(iris[1:4],function(x){(x-min(x))/(diff(range(x)))})
+head(norm.iris)
+norm.iris.data=data.frame(norm.iris,iris$Species)
+head(norm.iris.data)
+```
+
+#sampling data
+```{r}
+set.seed(123)
+id= sample(2, nrow(norm.iris.data), replace = T, prob = c(0.67, 0.33))
+norm.iris.train = norm.iris.data[id==1,]
+norm.iris.test = norm.iris.data[id==2,]
+```
+
+# For estimation
+```{r}
+norm.iris.estimation = knn(norm.iris.train[1:4], norm.iris.test[1:4], norm.iris.train$iris.Species, k =12)
+```
+
+# For testing
+```{r}
+table(data.frame(norm.iris.estimation, norm.iris.test$iris.Species))
+
+confusionMatrix(table(data.frame(norm.iris.estimation, norm.iris.test$iris.Species)))
+```
+
+# For normalizing the present data before estimation
+```{r}
+norm.iris.ind <- (data1$income - min(data1$income)) / (max(data1$income) - min(data1$income))
+norm.income.p
+
+norm.data.p = sapply(data1[2:3], function(x){(x-min(x))/(max(x) - min(x))})
+head(norm.data.p)
+
+norm.data.p = data.frame(norm.data.p, norm.income.p, data1$risk)
+head(norm.data.p)
+```
+
+# For current estimation
+```{r}
+f.pulse = survey[survey$Sex =="Female", ]$pulse
+mean(f.pulse, na.rm = T)
+
+```
+
